@@ -2,116 +2,33 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enchaned AI</title>
-    <style>
-        body{
-            padding: 0;
-            margin: 0;
-        }
-        p,img{
-            display: none;
-            max-width: 500px;
-        }
-        #main{
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background: linear-gradient(to right, #146df5, #00b4fb);
-        }
-        h1{
-            font-size: 30px;
-            color: #fff;
-            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-        }
-        textarea{
-            width: 580px;
-            height: 30px;
-            outline: 0;
-            border-radius: 16px;
-            font-size: 16px;
-            padding-top: 10px;
-            padding-left: 10px;
-            margin-bottom: 16px;
-        }
-        button{
-            padding: 12px 34px;
-            background: #1dcba7;
-            color: #fff;
-            border: 0;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-bottom: 13px;
-            font-size: 18px;
-        }
-    </style>
 </head>
 <body>
-    <section id="main">
-        <h1>New Prompter Image Gen 1.0</h1>
-        <textarea name="text" id="textarea"></textarea>
-        <button class="click">Generate</button>
-        <img src="" alt="image">
-    </section>
-    
+    <textarea name="text" id="textarea"></textarea>
+    <button>Click</button>
+
     <script type="module">
-        let button = document.querySelector(".click");
+        import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
+        let button = document.querySelector("button");
 
-        async function query(data) {
-            const response = await fetch(
-                "https://router.huggingface.co/hf-inference/models/Gustavosta/MagicPrompt-Stable-Diffusion",
-                {
-                    headers: {
-                        Authorization: "Bearer ${import.meta.env.VITE_HF_API_KEY}",
-                        "Content-Type": "application/json",
-                    },
-                    method: "POST",
-                    body: JSON.stringify(data),
-                }
-            );
-            const result = await response.json();
-            return result;
-        }
-
-        async function quest(data) {
-            const response = await fetch(
-                "https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell",
-                {
-                    headers: {
-                        Authorization: "Bearer ${import.meta.env.VITE_HF_API_KEY}",
-                        "Content-Type": "application/json",
-                    },
-                    method: "POST",
-                    body: JSON.stringify(data),
-                }
-            );
-            const result = await response.blob();
-            return result;
-        }
-
-        button.addEventListener("click", () => {
-            let text = document.querySelector("#textarea").value;
-
-            query({ inputs: text }).then((response) => {
-                let full_gen = response[0].generated_text;
-
-                return quest({ inputs: full_gen });
-            }).then((response) => {
-                const reader = new FileReader();
-                reader.onload = () => {
-                    let img = document.querySelector("img");
-                    img.style.display = "block";
-                    img.src = reader.result;
-                };
-                reader.readAsDataURL(response);
+        async function run() {
+            const text = document.querySelector("#textarea").value;
+            const client = await Client.connect("black-forest-labs/FLUX.1-schnell");
+            const result = await client.predict("/infer", { 		
+                prompt: text,
+                seed: 42,
+                randomize_seed: true,
+                width: 1024,
+                height: 1024,
+                num_inference_steps: 4, 
             });
+            console.log(result.data[0].url);
+        }
+        
+        button.addEventListener("click", () => {
+            run();
         });
 
-        
-
-        
     </script>
 </body>
 </html>
