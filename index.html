@@ -3,16 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        img{
+        body{
+            padding: 0;
+            margin: 0;
+        }
+        a,img{
             display: none;
-            max-width: 500px;
+            max-width: 400px;
+        }
+        #main{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(to right, #146df5, #00b4fb);
+        }
+        h1{
+            font-size: 30px;
+            color: #fff;
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+        }
+        textarea{
+            width: 580px;
+            height: 30px;
+            outline: 0;
+            border-radius: 16px;
+            font-size: 16px;
+            padding-top: 10px;
+            padding-left: 10px;
+            margin-bottom: 16px;
+        }
+        button,a{
+            padding: 12px 34px;
+            background: #1dcba7;
+            color: #fff;
+            border: 0;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 13px;
+            font-size: 18px;
+            text-decoration: none;
+        }
+        img{
+            margin-bottom: 16px;
         }
     </style>
 </head>
 <body>
-    <textarea name="text" id="textarea"></textarea>
-    <img src="" alt="">
-    <button>Click</button>
+    <section id="main">
+        <h1>New and Best Image Gen 1.0</h1>
+        <textarea name="text" id="textarea"></textarea>
+        <button>Click</button>
+        <img src="" alt="">
+        <a href="" class="button" download>Download</a>
+    </section>
+    
 
     <script type="module">
         import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
@@ -30,8 +76,19 @@
                 num_inference_steps: 4, 
             });
             let img = document.querySelector("img");
+            let a = document.querySelector(".button");
+            let imgUrl = result.data[0].url;
+
             img.style.display = "block";
-            img.src = result.data[0].url;
+            img.src = imgUrl;
+
+            const response = await fetch(imgUrl);
+            const blob = await response.blob();
+            const urlimg = URL.createObjectURL(blob);
+
+            a.href = urlimg;
+            a.style.display = "block";
+            a.download = "gen-image.png";
         }
         
         button.addEventListener("click", () => {
