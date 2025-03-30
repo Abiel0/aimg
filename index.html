@@ -2,9 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <style>
+        img{
+            display: none;
+            max-width: 500px;
+        }
+    </style>
 </head>
 <body>
     <textarea name="text" id="textarea"></textarea>
+    <img src="" alt="">
     <button>Click</button>
 
     <script type="module">
@@ -22,7 +29,9 @@
                 height: 1024,
                 num_inference_steps: 4, 
             });
-            console.log(result.data[0].url);
+            let img = document.querySelector("img");
+            img.style.display = "block";
+            img.src = result.data[0].url;
         }
         
         button.addEventListener("click", () => {
